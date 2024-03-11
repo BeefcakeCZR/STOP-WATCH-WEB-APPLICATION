@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="stopwatch">
+    <div class="display">00:00:00</div>
+    <button id="startStop">Start</button>
+    <button id="lapReset">Reset</button>
+    <ul id="laps"></ul>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.stopwatch {
+  margin-top: 50px;
+}
+
+.display {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+button {
+  font-size: 1em;
+  margin-right: 10px;
+  padding: 5px 10px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 5px;
+}
+let timer;
+let isRunning = false;
+let startTime;
+let elapsedTime = 0;
+let laps = [];
+
+function displayTime(time) {
+  const display = document.querySelector('.display');
+  const minutes = Math.floor(time / 60000);
+  const seconds = Math.floor((time % 60000) / 1000);
+  const milliseconds = Math.floor((time % 1000) / 10);
+  display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+}
+
+function startStop() {
+  if (isRunning) {
+    clearInterval(timer);
+    isRunning = false;
+  } else {
+    startTime = Date.now() - elapsedTime;
+    timer = setInterval(function() {
+      elapsedTime = Date.now() - startTime;
+      displayTime(elapsedTime);
+    }, 10);
+    isRunning = true;
+  }
+}
+
+function lapReset() {
+  if (isRunning) {
+    const currentLapTime = elapsedTime - laps.reduce((total, lap) => total + lap, 0);
+    laps.push(currentLapTime);
+    const lapsList = document.getElementById('laps');
+    const lapItem = document.createElement('li');
+    lapItem.textContent = displayTime(currentLapTime);
+    lapsList.appendChild(lapItem);
+  } else {
+    clearInterval(timer);
+    elapsedTime = 0;
+    displayTime(elapsedTime);
+    laps = [];
+    document.getElementById('laps').innerHTML = '';
+  }
+}
+
+document.getElementById('startStop').addEventListener('click', startStop);
+document.getElementById('lapReset').addEventListener('click', lapReset);
